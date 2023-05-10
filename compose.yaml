@@ -10,10 +10,10 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: password
 
-  jupyter:
+  processor:
     build:
       context: .
-      dockerfile: jupyter-dockerfile
+      dockerfile: python-runtime-dockerfile
     volumes:
       - ./project:/project
     ports:
