@@ -1,0 +1,26 @@
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+
+  jupyter:
+    build:
+      context: .
+      dockerfile: jupyter-dockerfile
+    volumes:
+      - ./project:/project
+    ports:
+      - "8888:8888"
+    command: jupyter notebook --ip 0.0.0.0 --no-browser --allow-root
+    depends_on:
+      - db
+
+volumes:
+  db_data: {}

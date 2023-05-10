@@ -1,0 +1,12 @@
+numpy
+matplotlib
+seaborn
+pandas
+sqlalchemy<2.0
+folium
+geopandas
+requests
+pymysql
+xlrd
+openpyxl
+geopy
