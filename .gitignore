@@ -1,0 +1,5 @@
+# .gitignore
+project/config.py
+.gitattributes
+.git
+.DS_Store
