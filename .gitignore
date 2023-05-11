@@ -3,3 +3,4 @@ project/config.py
 .gitattributes
 .git
 .DS_Store
+key-pair-1.pem
