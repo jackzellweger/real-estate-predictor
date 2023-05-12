@@ -22,5 +22,17 @@ services:
     depends_on:
       - db
 
+  flask-server:
+    build:
+      context: .
+      dockerfile: flask-dockerfile
+    ports:
+      - "8080:5000"
+    volumes:
+      - ./flask_app:/flask_app
+    depends_on:
+      - db
+    # command: python -m flask run --host=0.0.0.0
+
 volumes:
   db_data: {}

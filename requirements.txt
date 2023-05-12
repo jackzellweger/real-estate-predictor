@@ -10,3 +10,6 @@ pymysql
 xlrd
 openpyxl
 geopy
+flask
+flask-restful
+uwsgi
