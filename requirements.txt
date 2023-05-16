@@ -13,3 +13,5 @@ geopy
 flask
 flask-restful
 uwsgi
+tqdm
+pickle
