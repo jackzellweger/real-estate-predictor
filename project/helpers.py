@@ -32,7 +32,9 @@ mapping = {
         '03 THREE FAMILY DWELLINGS',
         '07 RENTALS - WALKUP APARTMENTS',
         '08 RENTALS - ELEVATOR APARTMENTS',
-        '14 RENTALS - 4-10 UNIT'
+        '14 RENTALS - 4-10 UNIT',
+        '15 CONDOS - 2-10 UNIT RESIDENTIAL',
+        '16 CONDOS - 2-10 UNIT WITH COMMERCIAL UNIT'
     ],
     "Apartment": [
         '07 RENTALS - WALKUP APARTMENTS',
@@ -44,8 +46,6 @@ mapping = {
         '04 TAX CLASS 1 CONDOS',
         '12 CONDOS - WALKUP APARTMENTS',
         '13 CONDOS - ELEVATOR APARTMENTS',
-        '15 CONDOS - 2-10 UNIT RESIDENTIAL',
-        '16 CONDOS - 2-10 UNIT WITH COMMERCIAL UNIT'
     ],
     "Co-op": [
         '09 COOPS - WALKUP APARTMENTS',
@@ -66,6 +66,32 @@ mapping = {
         '02 TWO FAMILY DWELLINGS'
     ],
 }
+
+intermediary_mapping = {
+    "Single-family home": ['01 ONE FAMILY DWELLINGS'],
+    "Duplex": ['02 TWO FAMILY DWELLINGS'],
+    "Multi-family home": [
+        '03 THREE FAMILY DWELLINGS',
+        '14 RENTALS - 4-10 UNIT',
+        '15 CONDOS - 2-10 UNIT RESIDENTIAL',
+        '16 CONDOS - 2-10 UNIT WITH COMMERCIAL UNIT'
+    ],
+    "Apartment": [
+        '08 RENTALS - ELEVATOR APARTMENTS',
+        '07 RENTALS - WALKUP APARTMENTS'
+    ],
+    "Condo": [
+        '04 TAX CLASS 1 CONDOS',
+        '12 CONDOS - WALKUP APARTMENTS',
+        '13 CONDOS - ELEVATOR APARTMENTS',
+    ],
+    "Co-op": [
+        '17 CONDO COOPS',
+        '09 COOPS - WALKUP APARTMENTS',
+        '10 COOPS - ELEVATOR APARTMENTS'
+    ],
+}
+
 
 # Outline the columns of the DataFrame that
 # will hold our new geocode information

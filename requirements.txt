@@ -14,4 +14,4 @@ flask
 flask-restful
 uwsgi
 tqdm
-pickle
+scikit-learn
