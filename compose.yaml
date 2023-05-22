@@ -16,6 +16,8 @@ services:
       dockerfile: python-runtime-dockerfile
     volumes:
       - ./project:/project
+      - ./project/model:/project/model
+      - model_volume:/project/model
     ports:
       - "8888:8888"
     command: jupyter notebook --ip 0.0.0.0 --no-browser --allow-root
@@ -30,9 +32,12 @@ services:
       - "8080:5000"
     volumes:
       - ./flask_app:/flask_app
+      - model_volume:/flask_app/model
     depends_on:
       - db
+      - processor
     # command: python -m flask run --host=0.0.0.0
 
 volumes:
   db_data: {}
+  model_volume: {}

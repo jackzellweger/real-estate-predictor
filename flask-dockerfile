@@ -6,13 +6,13 @@ FROM python:3.8
 
 WORKDIR /flask_app
 
+# Make a directory where we will put the model
+
+RUN mkdir /flask_app/model
+
 # Add the current directory contents into the container at /app
 
 ADD . /flask_app
-
-# Create and enter project folder
-
-# RUN mkdir /flask_app
 
 # Update and install dependencies
 
