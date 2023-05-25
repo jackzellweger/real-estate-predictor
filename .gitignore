@@ -1,5 +1,6 @@
 # .gitignore
 project/config.py
+project/__pycache__
 .gitattributes
 .git
 .DS_Store

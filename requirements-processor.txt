@@ -1,6 +1,7 @@
 numpy
 matplotlib
 pandas
+geopy
 sqlalchemy<2.0
 requests
 pymysql
