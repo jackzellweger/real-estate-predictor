@@ -17,9 +17,11 @@ RUN pip install jupyter
 RUN pip install -r requirements.txt
 
 # Working directory set to project
+
 WORKDIR /project
 
 # Create model directory
+
 RUN mkdir /project/model
 
 # Add the current directory contents into the container at /project

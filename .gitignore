@@ -5,3 +5,4 @@ project/config.py
 .DS_Store
 key-pair-1.pem
 notes.md
+.vscode
