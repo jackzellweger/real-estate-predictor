@@ -9,12 +9,12 @@ RUN sudo -H pip3 install --upgrade pip
 
 # Copy file into containers working dir
 
-COPY requirements.txt .
+COPY requirements-processor.txt .
 
 # Install jupyter and python packages
 
 RUN pip install jupyter
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-processor.txt
 
 # Working directory set to project
 

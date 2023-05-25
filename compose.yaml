@@ -16,8 +16,8 @@ services:
       dockerfile: python-runtime-dockerfile
     volumes:
       - ./project:/project
-      - ./project/model:/project/model
-      - model_volume:/project/model
+      #- ./project/model:/project/model # This was just for dev, doesn't work in prod
+      - model_volume:/project/model # For prod
     ports:
       - "8888:8888"
     command: jupyter notebook --ip 0.0.0.0 --no-browser --allow-root

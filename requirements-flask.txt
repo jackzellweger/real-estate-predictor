@@ -1,0 +1,10 @@
+numpy
+pandas
+sqlalchemy<2.0
+requests
+flask
+flask-restful
+uwsgi
+tqdm
+scikit-learn
+joblib

@@ -1,0 +1,12 @@
+numpy
+matplotlib
+pandas
+sqlalchemy<2.0
+requests
+pymysql
+xlrd
+openpyxl
+uwsgi
+tqdm
+scikit-learn
+joblib
