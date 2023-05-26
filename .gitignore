@@ -4,7 +4,6 @@ project/__pycache__
 .gitattributes
 .git
 .DS_Store
-key-pair-1.pem
-key-pair-3.pem
+key-pair-4.pem
 notes.md
 .vscode
