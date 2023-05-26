@@ -6,6 +6,7 @@ import sklearn
 import numpy as np
 
 app = Flask(__name__)
+app.debug = True
 
 # Load the model and preprocessor
 model = joblib.load("./model/model.joblib")

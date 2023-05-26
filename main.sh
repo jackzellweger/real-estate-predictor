@@ -55,9 +55,10 @@ sudo docker-compose up --build
 # RUN DATA PROCESSING PYTHON SCRIPT
 
 # Specify path to notebook
-NOTEBOOK_PATH=./project/notebook.ipynb
+NOTEBOOK_PATH=./notebook.ipynb # I guess we're in the `./project` folder in the container at this point
+CONTAINER_NAME=real-estate-predictor_processor_1
 
 # Run the command on the container
 echo "Running data processor script..."
-docker exec processor sh -c "jupyter nbconvert --execute $NOTEBOOK_PATH --to python"
+sudo docker exec $CONTAINER_NAME sh -c "jupyter nbconvert --execute $NOTEBOOK_PATH --to python"
 echo "Data processor script complete..."
