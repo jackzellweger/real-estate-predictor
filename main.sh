@@ -33,9 +33,6 @@ sudo docker run hello-world
 sudo apt-get install python3-pip -y
 sudo pip install --upgrade docker-compose
 
-# Build the compose file
-sudo docker-compose up --build
-
 # Prompt the user for inputs
 read -p "Please enter your Google API Key: " GOOGLE_API_KEY
 read -p "Please enter your database username: " DB_USERNAME
@@ -51,3 +48,16 @@ DB_PASSWORD = "$DB_PASSWORD"
 DB_HOSTNAME = "db"
 DB_NAME = "$DB_NAME"
 EOF
+
+# Build the compose file
+sudo docker-compose up --build
+
+# RUN DATA PROCESSING PYTHON SCRIPT
+
+# Specify path to notebook
+NOTEBOOK_PATH=./project/notebook.ipynb
+
+# Run the command on the container
+echo "Running data processor script..."
+docker exec processor sh -c "jupyter nbconvert --execute $NOTEBOOK_PATH --to python"
+echo "Data processor script complete..."
