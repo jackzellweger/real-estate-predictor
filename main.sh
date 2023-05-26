@@ -55,5 +55,10 @@ sudo git clone https://github.com/jackzellweger/real-estate-predictor.git
 # Navigate into project directory
 cd real-estate-predictor
 
+# Insert a bit here about running this script 
+# ...
+
+
+# Build the compose file
 sudo docker-compose up --build
 
