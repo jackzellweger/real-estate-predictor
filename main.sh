@@ -7,11 +7,10 @@
 #chmod 400 key-pair-1.pem
 #ssh -i key-pair-1.pem admin@ec2-18-208-146-140.compute-1.amazonaws.com
 
-# Changed permission of the opt folder 
 # Run this scrpt 
 # cd ../..//opt && sudo chown admin /opt && sudo apt upgrade -y && sudo apt-get update -y && sudo apt-get install git -y && sudo git clone https://github.com/jackzellweger/real-estate-predictor.git && cd real-estate-predictor
 
-
+sudo chmod +x main.sh
 
 # Install docker dependencies
 sudo apt-get install gnupg2 -y
