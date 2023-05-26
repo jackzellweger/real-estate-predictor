@@ -1,16 +1,5 @@
 #!/bin/sh
-
 # This script runs best on Debian
-
-# Connect to EC2 instance
-# For running from shell
-#chmod 400 key-pair-1.pem
-#ssh -i key-pair-1.pem admin@ec2-18-208-146-140.compute-1.amazonaws.com
-
-# Run this scrpt 
-# cd ../..//opt && sudo chown admin /opt && sudo apt upgrade -y && sudo apt-get update -y && sudo apt-get install git -y && sudo git clone https://github.com/jackzellweger/real-estate-predictor.git && cd real-estate-predictor
-
-sudo chmod +x main.sh
 
 # Install docker dependencies
 sudo apt-get install gnupg2 -y
@@ -40,9 +29,6 @@ sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 sudo docker run hello-world
 
-# Verify that Docker is running (this doesn’t need to go into the script)
-# sudo systemctl status docker
-
 # Use pip to install docker compose
 sudo apt-get install python3-pip -y
 sudo pip install --upgrade docker-compose
@@ -56,3 +42,18 @@ sudo pip install --upgrade docker-compose
 # Build the compose file
 sudo docker-compose up --build
 
+# Prompt the user for inputs
+read -p "Please enter your Google API Key: " GOOGLE_API_KEY
+read -p "Please enter your database username: " DB_USERNAME
+read -sp "Please enter your database password: " DB_PASSWORD  # -s flag hides input for privacy
+echo  # Insert a line break
+read -p "Please enter your database name: " DB_NAME
+
+# Write the variables to a new Python file
+cat << EOF > ./project/config.py
+GOOGLE_API_KEY = "$GOOGLE_API_KEY"
+DB_USERNAME = "$DB_USERNAME"
+DB_PASSWORD = "$DB_PASSWORD"
+DB_HOSTNAME = "db"
+DB_NAME = "$DB_NAME"
+EOF
