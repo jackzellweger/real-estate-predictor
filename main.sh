@@ -33,12 +33,6 @@ sudo docker run hello-world
 sudo apt-get install python3-pip -y
 sudo pip install --upgrade docker-compose
 
-# Get into the Ec2 SQL instance
-#sudo docker exec -it real-estate-predictor_db_1 mysql -u user -p
-
-#Password from compose.yaml 
-#MYSQL_PASSWORD: password
-
 # Build the compose file
 sudo docker-compose up --build
 
