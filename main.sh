@@ -36,7 +36,7 @@ sudo pip install --upgrade docker-compose
 # Prompt the user for inputs
 read -p "Please enter your Google API Key: " GOOGLE_API_KEY
 read -p "Please enter your database username: " DB_USERNAME
-read -sp "Please enter your database password: " DB_PASSWORD  # -s flag hides input for privacy
+read -p "Please enter your database password: " DB_PASSWORD 
 echo  # Insert a line break
 read -p "Please enter your database name: " DB_NAME
 

@@ -4,6 +4,12 @@ project/__pycache__
 .gitattributes
 .git
 .DS_Store
-key-pair-6.pem
+key-pair-7.pem
 notes.md
 .vscode
+
+# Terraform
+terraform/.terraform
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/.terraform.lock.hcl
