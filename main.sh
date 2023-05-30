@@ -50,7 +50,7 @@ DB_NAME = "$DB_NAME"
 EOF
 
 # Build the compose file
-sudo docker-compose up --build
+sudo docker-compose up --build -d
 
 # RUN DATA PROCESSING PYTHON SCRIPT
 
