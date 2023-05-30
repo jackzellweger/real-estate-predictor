@@ -22,6 +22,7 @@ resource "aws_instance" "api" {
 
   vpc_security_group_ids = [aws_security_group.instance.id]
   
+  /*
   user_data = <<-EOF
                 #!/bin/bash
                 cd ../..//opt && \
@@ -34,7 +35,8 @@ resource "aws_instance" "api" {
                 sudo chmod +x ./main.sh && \
                 sudo ./main.sh
               EOF
-  
+*/
+
   user_data_replace_on_change = false
 
   tags = {
