@@ -35,7 +35,7 @@ resource "aws_instance" "api" {
                 sudo ./main.sh
               EOF
   
-  user_data_replace_on_change = true
+  user_data_replace_on_change = false
 
   tags = {
     Name = "real-estate-predictor"

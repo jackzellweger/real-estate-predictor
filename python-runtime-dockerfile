@@ -34,4 +34,4 @@ ADD . /project/model
 
 # Start jupyter (this runs when container is started)
 
-CMD jupyter notebook --ip 0.0.0.0 --no-browser --allow-root
+CMD jupyter notebook --ip 0.0.0.0 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
