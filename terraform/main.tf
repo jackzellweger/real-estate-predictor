@@ -23,9 +23,16 @@ resource "aws_instance" "api" {
   vpc_security_group_ids = [aws_security_group.instance.id]
   
   user_data = <<-EOF
-              #!/bin/bash
-              echo "Hello, World" > index.html
-              nohup busybox httpd -f -p var.server_port &
+                #!/bin/bash
+                cd ../..//opt && \
+                sudo chown admin /opt && \
+                sudo apt upgrade -y && \
+                sudo apt-get update -y && \
+                sudo apt-get install git -y && \
+                sudo git clone https://github.com/jackzellweger/real-estate-predictor.git && \
+                cd real-estate-predictor && \
+                sudo chmod +x ./main.sh && \
+                sudo ./main.sh
               EOF
   
   user_data_replace_on_change = true
