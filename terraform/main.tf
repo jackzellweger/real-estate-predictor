@@ -13,7 +13,7 @@ provider "aws" {
 # ---- Resources
 
 # AWS Instance
-resource "aws_instance" "example" {
+resource "aws_instance" "api" {
   ami           =  "ami-08eda224ab7296253" 
 
   instance_type = "t2.xlarge"

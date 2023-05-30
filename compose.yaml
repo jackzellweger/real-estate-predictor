@@ -11,6 +11,7 @@ services:
       MYSQL_PASSWORD: password
 
   processor:
+    user: root # Dangerous?
     build:
       context: .
       dockerfile: python-runtime-dockerfile
@@ -25,6 +26,7 @@ services:
       - db
 
   flask-server:
+    user: root # Dangerous?
     build:
       context: .
       dockerfile: flask-dockerfile

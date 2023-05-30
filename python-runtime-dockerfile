@@ -20,9 +20,12 @@ RUN pip install -r requirements-processor.txt
 
 WORKDIR /project
 
-# Create model directory
+# Create model directory,
 
 RUN mkdir /project/model
+
+# New, might break
+# RUN chown -R 1000:1000 /project/model
 
 # Add the current directory contents into the container at /project
 
