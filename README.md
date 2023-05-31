@@ -28,10 +28,6 @@ Here’s a walkthrough of how to get an instance of the API up and running for y
 
 <img src="./images/addusers.png" width="400">
 
-**Hit the `Users` button in the sidebar and click the `Add users` button, and follow the user flow to user creation…**
-
-<img src="./images/addusers.png" width="400">
-
 **Create a new user group with `AdministratorAccess` privileges and add your user to that group…**
 
 <img src="./images/adminaccess.png" width="400">
