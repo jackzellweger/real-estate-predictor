@@ -67,11 +67,12 @@ echo "Running data processor script..."
 sudo docker exec $CONTAINER_NAME sh -c "jupyter nbconvert --execute $NOTEBOOK_PATH --to python"
 echo "Data processor script complete..."
 
-# Print jupyter notebook access token
-sudo docker exec -it real-estate-predictor_processor_1 jupyter-notebook list
-
 # Copy model and encoder to flask server directory
 sudo cp ./project/model.joblib ./project/model/model.joblib && sudo cp ./project/preprocessor.joblib ./project/model/preprocessor.joblib
+
+# Print jupyter notebook access token
+echo "Your Jupyter development env can be accessed with this following token..."
+sudo docker exec -it real-estate-predictor_processor_1 jupyter-notebook list
 
 # Define the cron job
 # CRON_JOB="0 0 1 * * cd opt/real-estate-predictor/project && python3 notebook.py && cp -r model/ flask_app/model/"
@@ -82,5 +83,8 @@ sudo cp ./project/model.joblib ./project/model/model.joblib && sudo cp ./project
 # Write the cron job to the user's crontab, overwriting existing jobs
 # echo "$CRON_JOB" | crontab -
 
+echo "Restarting server with new configuration..."
+sudo docker container restart real-estate-predictor_flask-server_1
+
 echo "The prediction API is available at..."
-echo -n "https://" ; curl -s ipinfo.io/ip ; echo ":8080/predict"
+echo -n "http://" ; curl -s ipinfo.io/ip ; echo ":8080/predict"
