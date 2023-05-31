@@ -52,6 +52,9 @@ EOF
 # Build the compose file
 sudo docker-compose up --build -d
 
+# Wait until docker containers are ready....
+sleep 30s
+
 # RUN DATA PROCESSING PYTHON SCRIPT
 
 # Specify path to notebook
@@ -65,6 +68,8 @@ echo "Data processor script complete..."
 
 # Print jupyter notebook access token
 sudo docker exec -it real-estate-predictor_processor_1 jupyter-notebook list
+
+sudo cp model.joblib ./model/model.joblib && sudo cp preprocessor.joblib ./model/preprocessor.joblib
 
 # Define the cron job
 # CRON_JOB="0 0 1 * * cd opt/real-estate-predictor/project && python3 notebook.py && cp -r model/ flask_app/model/"
