@@ -7,7 +7,7 @@ RUN sudo apt update
 RUN sudo apt install -y python3-pip python3-dev
 RUN sudo -H pip3 install --upgrade pip
 
-# Copy file into containers working dir
+# Copy reqs into containers working dir
 
 COPY requirements-processor.txt .
 

@@ -2,6 +2,10 @@
 
 FROM python:3.8
 
+# Copy reqs into containers working dir
+
+COPY requirements-processor.txt .
+
 # Set the working directory in the container to /app
 
 WORKDIR /flask_app
@@ -20,7 +24,7 @@ RUN apt-get update && apt-get install -y build-essential python3-dev
 
 # Install any needed packages specified in requirements.txt
 
-RUN pip install --no-cache-dir --verbose -r requirements-flask.txt
+RUN pip install --verbose -r requirements-flask.txt
 
 # Make port 5000 available to the world outside this container
 

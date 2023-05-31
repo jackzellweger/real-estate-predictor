@@ -55,7 +55,7 @@ sudo docker-compose up --build -d
 # RUN DATA PROCESSING PYTHON SCRIPT
 
 # Specify path to notebook
-NOTEBOOK_PATH=./notebook.ipynb # I guess we're in the `./project` folder in the container at this point
+NOTEBOOK_PATH=./notebook.ipynb # We're in the `./project` folder in the container at this point
 CONTAINER_NAME=real-estate-predictor_processor_1
 
 # Run the command on the container
