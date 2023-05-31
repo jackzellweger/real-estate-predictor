@@ -1,8 +1,18 @@
+# Download main_local.sh file
+# curl -o main_local.sh https://raw.githubusercontent.com/jackzellweger/real-estate-predictor/main/main_local.sh
+
+# Change permissions of main_local.sh
+sudo chmod +x ./main_local.sh
+
+# Download the Terraform file
 curl -o main.tf https://raw.githubusercontent.com/jackzellweger/real-estate-predictor/main/terraform/main.tf
 
+# Move terraform file to terraform folder
+sudo mkdir ./terraform
+sudo mv main.tf ./terraform
 
-# Change permissions of the file they just downloaded
-sudo chmod +x ./main_local.sh
+# Move to terraform folder
+cd ./terraform
 
 # Prompt the user for inputs
 read -p "Please enter your AWS access key: " AWS_ACCESS_KEY_ID_INPUT
@@ -15,7 +25,11 @@ read -p "Please enter your AWS secret access key: " AWS_SECRET_ACCESS_KEY_INPUT
 # Install Terraform
 brew tap hashicorp/tap && brew install hashicorp/tap/terraform
 
-# Download Terraform file they will need...
-curl -o main.tf https://raw.githubusercontent.com/jackzellweger/real-estate-predictor/main/terraform/main.tf
+# Initialize Terraform...
+terraform init
 
-#terraform main.tf...
+# Plan the Terraform...
+terraform plan
+
+# Apply the Terraform...
+terraform apply
