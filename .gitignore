@@ -14,6 +14,9 @@ terraform/*.tfstate
 terraform/*.tfstate.backup
 terraform/.terraform.lock.hcl
 
+# Force it to rebuild notebook.py
+project/notebook.py
+
 # Force it to rebuild model
 project/model
 project/model.joblib
