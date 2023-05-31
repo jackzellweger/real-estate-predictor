@@ -26,7 +26,7 @@ Here’s a walkthrough of how to get an instance of the API up and running for y
 
 **Hit the `Users` button in the sidebar and click the `Add users` button, and follow the user flow to user creation…**
 
-<img src="./images/xx.png" width="400">
+<img src="./images/addusers.png" width="400">
 
 **Hit the `Users` button in the sidebar and click the `Add users` button, and follow the user flow to user creation…**
 
