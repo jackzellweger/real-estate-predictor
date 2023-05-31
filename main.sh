@@ -53,6 +53,7 @@ EOF
 sudo docker-compose up --build -d
 
 # Wait until docker containers are ready....
+echo "Waiting until Docker containers are ready... (30s)"
 sleep 30s
 
 # RUN DATA PROCESSING PYTHON SCRIPT
@@ -69,7 +70,8 @@ echo "Data processor script complete..."
 # Print jupyter notebook access token
 sudo docker exec -it real-estate-predictor_processor_1 jupyter-notebook list
 
-sudo cp model.joblib ./model/model.joblib && sudo cp preprocessor.joblib ./model/preprocessor.joblib
+# Copy model and encoder to flask server directory
+sudo cp ./project/model.joblib ./project/model/model.joblib && sudo cp ./project/preprocessor.joblib ./project/model/preprocessor.joblib
 
 # Define the cron job
 # CRON_JOB="0 0 1 * * cd opt/real-estate-predictor/project && python3 notebook.py && cp -r model/ flask_app/model/"
@@ -79,3 +81,6 @@ sudo cp model.joblib ./model/model.joblib && sudo cp preprocessor.joblib ./model
 
 # Write the cron job to the user's crontab, overwriting existing jobs
 # echo "$CRON_JOB" | crontab -
+
+echo "The prediction API is available at..."
+echo -n "https://" ; curl -s ipinfo.io/ip ; echo ":8080/predict"
