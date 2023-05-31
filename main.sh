@@ -62,3 +62,12 @@ CONTAINER_NAME=real-estate-predictor_processor_1
 echo "Running data processor script..."
 sudo docker exec $CONTAINER_NAME sh -c "jupyter nbconvert --execute $NOTEBOOK_PATH --to python"
 echo "Data processor script complete..."
+
+# Define the cron job
+# CRON_JOB="0 0 1 * * cd opt/real-estate-predictor/project && python3 notebook.py && cp -r model/ flask_app/model/"
+
+# Add the cron job to the user's crontab, preserving existing jobs
+# (crontab -l; echo "$CRON_JOB") | crontab -
+
+# Write the cron job to the user's crontab, overwriting existing jobs
+# echo "$CRON_JOB" | crontab -
