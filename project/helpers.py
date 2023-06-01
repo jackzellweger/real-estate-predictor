@@ -2,6 +2,16 @@
 import os
 import io
 import gc
+import time
+
+# CONFIG
+import importlib
+import config
+importlib.reload(config)
+username = config.DB_USERNAME
+password = config.DB_PASSWORD
+hostname = config.DB_HOSTNAME
+database_name = config.DB_NAME
 
 # DATA SCIENCE
 import numpy as np
@@ -267,3 +277,117 @@ geocodes_reset_df = pd.read_csv('geocodes_export_backup.csv')
 geocodes_reset_df.drop(geocodes_reset_df.tail(10).index, inplace=True)
 geocodes_reset_df
 """
+
+def connect_to_database(username, password, hostname, max_retries=10, retry_interval=10):
+    """
+    Attempt to establish a connection to the MySQL database.
+    :param username: MySQL username
+    :param password: MySQL password
+    :param hostname: MySQL host
+    :param max_retries: Maximum number of connection attempts
+    :param retry_interval: Interval (in seconds) between connection attempts
+    :return: SQLAlchemy engine instance if successful, otherwise None
+    """
+    retry_count = 0
+    while retry_count <= max_retries:
+        try:
+            engine = create_engine(f'mysql+pymysql://{username}:{password}@{hostname}')
+            print("Database connection established successfully.")
+            return engine
+        except Exception as e:
+            if "Connection refused" in str(e):
+                retry_count += 1
+                print(f"Connection attempt {retry_count} failed. Retrying in {retry_interval} seconds...")
+                time.sleep(retry_interval)
+            else:
+                raise
+    print("Max retries reached. Unable to establish a database connection.")
+    return None
+
+def create_database(engine, database_name):
+    """
+    Create a new database, if it doesn't already exist.
+
+    :param engine: SQLAlchemy engine instance
+    :param database_name: Name of the database to create
+    :return: SQLAlchemy engine instance connected to the new database
+    """
+    try:
+        with engine.connect() as connection:
+            connection.execute(text(f'CREATE DATABASE {database_name};'))
+            print("Database created successfully.")
+    except ProgrammingError:
+        pass  # Database already exists
+    return create_engine(f'mysql+pymysql://{username}:{password}@{hostname}/{database_name}')
+
+def silence_warnings():
+    """
+    Silence SQLAlchemy warnings.
+    """
+    os.environ['SQLALCHEMY_WARN_20'] = '0'
+    os.environ['SQLALCHEMY_SILENCE_UBER_WARNING'] = '1'
+    print("SQLAlchemy warnings silenced.")
+
+def create_table_from_csv(engine, table_name, csv_file):
+    """
+    Create a new SQL table from a CSV file, if the table doesn't already exist.
+
+    :param engine: SQLAlchemy engine instance
+    :param table_name: Name of the table to create
+    :param csv_file: Path to the CSV file
+    """
+    with engine.connect() as connection:
+        try:
+            df = pd.read_csv(csv_file)
+            df.to_sql(table_name, con=engine, index=False, if_exists='fail')
+            print(f"Table '{table_name}' created from csv '{csv_file}' successfully.")
+        except:
+            print(f"Table '{table_name}' already exists. Not resetting!")
+
+def add_primary_key(engine, table_name, pk_name):
+    """
+    Add a new primary key column to a SQL table, if it doesn't already exist.
+
+    :param engine: SQLAlchemy engine instance
+    :param table_name: Name of the SQL table
+    :param pk_name: Name of the primary key column
+    """
+    with engine.connect() as connection:
+        try:
+            connection.execute(text(f'ALTER TABLE {table_name} ADD COLUMN {pk_name} VARCHAR(255)'))
+            print(f"Column {pk_name} created in table {table_name}.")
+        except:
+            print(f"Column {pk_name} already exists in table {table_name}.")
+
+def set_primary_key(engine, table_name, pk_name, concat_fields):
+    """
+    Set the values of the primary key column by concatenating fields.
+
+    :param engine: SQLAlchemy engine instance
+    :param table_name: Name of the SQL table
+    :param pk_name: Name of the primary key column
+    :param concat_fields: Fields to concatenate (in SQL format)
+    """
+    with engine.connect() as connection:
+        try:
+            connection.execute(text(f'UPDATE {table_name} SET {pk_name} = CONCAT({concat_fields})'))
+            print(f"{pk_name} column values set in table {table_name}.")
+        except:
+            print(f"{pk_name} column values set error in table {table_name}.")
+
+def create_mapping_table(engine, mapping, table_name='cat_map'):
+    """
+    Create a new SQL table from a dictionary mapping between NYC
+    and ZILLOW housing categories, replacing the table if it
+    already exists.
+
+    :param engine: SQLAlchemy engine instance
+    :param mapping: Mapping dictionary
+    :param table_name: Name of the table to create
+    """
+    mapping_list = [(k, v) for k, vals in mapping.items() for v in vals]
+    mapping_df = pd.DataFrame(mapping_list, columns=['ZILLOW CATEGORY', 'BUILDING CLASS CATEGORY'])
+    with engine.connect() as connection:
+        mapping_df.to_sql(table_name, con=engine, index=False, if_exists='replace')
+        print(f"Table '{table_name}' created successfully.")
+
