@@ -53,7 +53,7 @@ And then copy / paste your access keys to a secure location. You’ll need them!
 This script will download another script from this Github repo, and set up Terraform on your local machine.
 
 ```bash
-curl -o main_local.sh https://raw.githubusercontent.com/jackzellweger/real-estate-predictor/main/main_local.sh && sudo chmod +x ./main_local.sh && sudo ./main_local.sh=
+curl -o main_local.sh https://raw.githubusercontent.com/jackzellweger/real-estate-predictor/main/main_local.sh && sudo chmod +x ./main_local.sh && sudo ./main_local.sh
 ```
 
 # Log into your server & launch the API
