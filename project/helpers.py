@@ -96,7 +96,6 @@ category_mapping = { '01 ONE FAMILY DWELLINGS': 'Single-family home',
                      '10 COOPS - ELEVATOR APARTMENTS': 'Co-op'
                     }
 
-
 # Outline the columns of the DataFrame that
 # will hold our new geocode information
 geocoding_data_types_df = {
