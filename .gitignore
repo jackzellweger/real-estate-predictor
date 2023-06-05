@@ -18,6 +18,6 @@ terraform/.terraform.lock.hcl
 project/notebook.py
 
 # Force it to rebuild model
-project/model
-project/model.joblib
-project/preprocessor.joblib
+#project/model
+#project/model.joblib
+#project/preprocessor.joblib
