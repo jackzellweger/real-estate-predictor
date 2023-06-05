@@ -11,7 +11,7 @@ curl -o main.tf https://raw.githubusercontent.com/jackzellweger/real-estate-pred
 sudo mkdir ./terraform
 sudo mv main.tf ./terraform
 
-# Move to terraform folder
+# Move shell to terraform folder
 cd ./terraform
 
 # Prompt the user for inputs
@@ -32,4 +32,4 @@ terraform init
 terraform plan
 
 # Apply the Terraform...
-terraform apply
+terraform apply # FIXME: We might have trouble with this because we don't know the name of the AWS instance

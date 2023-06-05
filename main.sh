@@ -2,11 +2,23 @@
 # This script runs best on Debian
 
 # Install docker dependencies
-sudo apt-get install gnupg2 -y
-sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
+sudo apt-get install \
+  -y \
+  gnupg2
+
+sudo apt install \
+  -y \
+  apt-transport-https \
+  ca-certificates \
+  curl \
+  software-properties-common \
 
 # Adding gpg keys to docker
-sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o docker.gpg && sudo mv docker.gpg /etc/apt/trusted.gpg.d/
+sudo curl \
+  -fsSL \
+  https://download.docker.com/ \
+  linux/debian/gpg -o docker.gpg && \
+  sudo mv docker.gpg /etc/apt/trusted.gpg.d/
 
 # Adding docker’s stable repo
 echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list

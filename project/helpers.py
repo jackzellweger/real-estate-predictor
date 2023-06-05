@@ -46,6 +46,7 @@ import config
 # VARS -----------------------------------------
 
 # Map between NYC and Zillow categories
+'''
 mapping = {
     "Single-family home": ["01 ONE FAMILY DWELLINGS"],
     "Multi-family home": [
@@ -77,28 +78,23 @@ mapping = {
     "Brownstone": ["01 ONE FAMILY DWELLINGS", "02 TWO FAMILY DWELLINGS"],
     "Row house": ["01 ONE FAMILY DWELLINGS", "02 TWO FAMILY DWELLINGS"],
 }
+'''
 
-intermediary_mapping = {
-    "Single-family home": ["01 ONE FAMILY DWELLINGS"],
-    "Duplex": ["02 TWO FAMILY DWELLINGS"],
-    "Multi-family home": [
-        "03 THREE FAMILY DWELLINGS",
-        "14 RENTALS - 4-10 UNIT",
-        "15 CONDOS - 2-10 UNIT RESIDENTIAL",
-        "16 CONDOS - 2-10 UNIT WITH COMMERCIAL UNIT",
-    ],
-    "Apartment": ["08 RENTALS - ELEVATOR APARTMENTS", "07 RENTALS - WALKUP APARTMENTS"],
-    "Condo": [
-        "04 TAX CLASS 1 CONDOS",
-        "12 CONDOS - WALKUP APARTMENTS",
-        "13 CONDOS - ELEVATOR APARTMENTS",
-    ],
-    "Co-op": [
-        "17 CONDO COOPS",
-        "09 COOPS - WALKUP APARTMENTS",
-        "10 COOPS - ELEVATOR APARTMENTS",
-    ],
-}
+category_mapping = { '01 ONE FAMILY DWELLINGS': 'Single-family home',
+                     '02 TWO FAMILY DWELLINGS': 'Duplex',
+                     '03 THREE FAMILY DWELLINGS': 'Multi-family home',
+                     '14 RENTALS - 4-10 UNIT': 'Multi-family home',
+                     '15 CONDOS - 2-10 UNIT RESIDENTIAL': 'Multi-family home',
+                     '16 CONDOS - 2-10 UNIT WITH COMMERCIAL UNIT': 'Multi-family home',
+                     '08 RENTALS - ELEVATOR APARTMENTS': 'Apartment',
+                     '07 RENTALS - WALKUP APARTMENTS': 'Apartment',
+                     '04 TAX CLASS 1 CONDOS': 'Condo',
+                     '12 CONDOS - WALKUP APARTMENTS': 'Condo',
+                     '13 CONDOS - ELEVATOR APARTMENTS': 'Condo',
+                     '17 CONDO COOPS': 'Co-op',
+                     '09 COOPS - WALKUP APARTMENTS': 'Co-op',
+                     '10 COOPS - ELEVATOR APARTMENTS': 'Co-op'
+                    }
 
 
 # Outline the columns of the DataFrame that
