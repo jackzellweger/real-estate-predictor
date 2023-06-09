@@ -7,6 +7,7 @@ import time
 # CONFIG
 import importlib
 import config
+
 importlib.reload(config)
 username = config.DB_USERNAME
 password = config.DB_PASSWORD
@@ -46,7 +47,7 @@ import config
 # VARS -----------------------------------------
 
 # Map between NYC and Zillow categories
-'''
+"""
 mapping = {
     "Single-family home": ["01 ONE FAMILY DWELLINGS"],
     "Multi-family home": [
@@ -78,23 +79,24 @@ mapping = {
     "Brownstone": ["01 ONE FAMILY DWELLINGS", "02 TWO FAMILY DWELLINGS"],
     "Row house": ["01 ONE FAMILY DWELLINGS", "02 TWO FAMILY DWELLINGS"],
 }
-'''
+"""
 
-category_mapping = { '01 ONE FAMILY DWELLINGS': 'Single-family home',
-                     '02 TWO FAMILY DWELLINGS': 'Duplex',
-                     '03 THREE FAMILY DWELLINGS': 'Multi-family home',
-                     '14 RENTALS - 4-10 UNIT': 'Multi-family home',
-                     '15 CONDOS - 2-10 UNIT RESIDENTIAL': 'Multi-family home',
-                     '16 CONDOS - 2-10 UNIT WITH COMMERCIAL UNIT': 'Multi-family home',
-                     '08 RENTALS - ELEVATOR APARTMENTS': 'Apartment',
-                     '07 RENTALS - WALKUP APARTMENTS': 'Apartment',
-                     '04 TAX CLASS 1 CONDOS': 'Condo',
-                     '12 CONDOS - WALKUP APARTMENTS': 'Condo',
-                     '13 CONDOS - ELEVATOR APARTMENTS': 'Condo',
-                     '17 CONDO COOPS': 'Co-op',
-                     '09 COOPS - WALKUP APARTMENTS': 'Co-op',
-                     '10 COOPS - ELEVATOR APARTMENTS': 'Co-op'
-                    }
+category_mapping = {
+    "01 ONE FAMILY DWELLINGS": "Single-family home",
+    "02 TWO FAMILY DWELLINGS": "Duplex",
+    "03 THREE FAMILY DWELLINGS": "Multi-family home",
+    "14 RENTALS - 4-10 UNIT": "Multi-family home",
+    "15 CONDOS - 2-10 UNIT RESIDENTIAL": "Multi-family home",
+    "16 CONDOS - 2-10 UNIT WITH COMMERCIAL UNIT": "Multi-family home",
+    "08 RENTALS - ELEVATOR APARTMENTS": "Apartment",
+    "07 RENTALS - WALKUP APARTMENTS": "Apartment",
+    "04 TAX CLASS 1 CONDOS": "Condo",
+    "12 CONDOS - WALKUP APARTMENTS": "Condo",
+    "13 CONDOS - ELEVATOR APARTMENTS": "Condo",
+    "17 CONDO COOPS": "Co-op",
+    "09 COOPS - WALKUP APARTMENTS": "Co-op",
+    "10 COOPS - ELEVATOR APARTMENTS": "Co-op",
+}
 
 # Outline the columns of the DataFrame that
 # will hold our new geocode information
@@ -118,6 +120,16 @@ geocoding_data_types_sqlalchemy = {
     "GEOCODING ERR": Boolean,
 }
 
+REQUIRED_PREPROCESSING_COLUMNS = [
+    "BOROUGH",
+    "NEIGHBORHOOD",
+    "BUILDING CLASS CATEGORY",
+    "ADDRESS",
+    "LAND SQUARE FEET",
+    "GROSS SQUARE FEET",
+    "SALE PRICE",
+]
+
 # URL order: [Manhattan, Bronx, Brooklyn, Queens, Staten Island]
 dataURLs = [
     "https://www.nyc.gov/assets/finance/downloads/pdf/rolling_sales/"
@@ -133,6 +145,16 @@ dataURLs = [
 ]
 
 # FUNCTION DECLARATIONS ------------------------
+
+
+# Takes in an array
+def combineHousingDataSets(dataFrames):
+    for dataFrame in dataFrames:
+        if not all(
+            column in REQUIRED_PREPROCESSING_COLUMNS for column in dataFrame.columns
+        ):
+            return False
+    return
 
 
 def geolocate(row):
@@ -273,7 +295,10 @@ geocodes_reset_df.drop(geocodes_reset_df.tail(10).index, inplace=True)
 geocodes_reset_df
 """
 
-def connect_to_database(username, password, hostname, max_retries=10, retry_interval=10):
+
+def connect_to_database(
+    username, password, hostname, max_retries=10, retry_interval=10
+):
     """
     Attempt to establish a connection to the MySQL database.
     :param username: MySQL username
@@ -286,18 +311,21 @@ def connect_to_database(username, password, hostname, max_retries=10, retry_inte
     retry_count = 0
     while retry_count <= max_retries:
         try:
-            engine = create_engine(f'mysql+pymysql://{username}:{password}@{hostname}')
+            engine = create_engine(f"mysql+pymysql://{username}:{password}@{hostname}")
             print("Database connection established successfully.")
             return engine
         except Exception as e:
             if "Connection refused" in str(e):
                 retry_count += 1
-                print(f"Connection attempt {retry_count} failed. Retrying in {retry_interval} seconds...")
+                print(
+                    f"Connection attempt {retry_count} failed. Retrying in {retry_interval} seconds..."
+                )
                 time.sleep(retry_interval)
             else:
                 raise
     print("Max retries reached. Unable to establish a database connection.")
     return None
+
 
 def create_database(engine, database_name):
     """
@@ -309,19 +337,23 @@ def create_database(engine, database_name):
     """
     try:
         with engine.connect() as connection:
-            connection.execute(text(f'CREATE DATABASE {database_name};'))
+            connection.execute(text(f"CREATE DATABASE {database_name};"))
             print("Database created successfully.")
     except ProgrammingError:
         pass  # Database already exists
-    return create_engine(f'mysql+pymysql://{username}:{password}@{hostname}/{database_name}')
+    return create_engine(
+        f"mysql+pymysql://{username}:{password}@{hostname}/{database_name}"
+    )
+
 
 def silence_warnings():
     """
     Silence SQLAlchemy warnings.
     """
-    os.environ['SQLALCHEMY_WARN_20'] = '0'
-    os.environ['SQLALCHEMY_SILENCE_UBER_WARNING'] = '1'
+    os.environ["SQLALCHEMY_WARN_20"] = "0"
+    os.environ["SQLALCHEMY_SILENCE_UBER_WARNING"] = "1"
     print("SQLAlchemy warnings silenced.")
+
 
 def create_table_from_csv(engine, table_name, csv_file):
     """
@@ -334,10 +366,11 @@ def create_table_from_csv(engine, table_name, csv_file):
     with engine.connect() as connection:
         try:
             df = pd.read_csv(csv_file)
-            df.to_sql(table_name, con=engine, index=False, if_exists='fail')
+            df.to_sql(table_name, con=engine, index=False, if_exists="fail")
             print(f"Table '{table_name}' created from csv '{csv_file}' successfully.")
         except:
             print(f"Table '{table_name}' already exists. Not resetting!")
+
 
 def add_primary_key(engine, table_name, pk_name):
     """
@@ -349,10 +382,13 @@ def add_primary_key(engine, table_name, pk_name):
     """
     with engine.connect() as connection:
         try:
-            connection.execute(text(f'ALTER TABLE {table_name} ADD COLUMN {pk_name} VARCHAR(255)'))
+            connection.execute(
+                text(f"ALTER TABLE {table_name} ADD COLUMN {pk_name} VARCHAR(255)")
+            )
             print(f"Column {pk_name} created in table {table_name}.")
         except:
             print(f"Column {pk_name} already exists in table {table_name}.")
+
 
 def set_primary_key(engine, table_name, pk_name, concat_fields):
     """
@@ -365,12 +401,15 @@ def set_primary_key(engine, table_name, pk_name, concat_fields):
     """
     with engine.connect() as connection:
         try:
-            connection.execute(text(f'UPDATE {table_name} SET {pk_name} = CONCAT({concat_fields})'))
+            connection.execute(
+                text(f"UPDATE {table_name} SET {pk_name} = CONCAT({concat_fields})")
+            )
             print(f"{pk_name} column values set in table {table_name}.")
         except:
             print(f"{pk_name} column values set error in table {table_name}.")
 
-def create_mapping_table(engine, mapping, table_name='cat_map'):
+
+def create_mapping_table(engine, mapping, table_name="cat_map"):
     """
     Create a new SQL table from a dictionary mapping between NYC
     and ZILLOW housing categories, replacing the table if it
@@ -381,8 +420,9 @@ def create_mapping_table(engine, mapping, table_name='cat_map'):
     :param table_name: Name of the table to create
     """
     mapping_list = [(k, v) for k, vals in mapping.items() for v in vals]
-    mapping_df = pd.DataFrame(mapping_list, columns=['ZILLOW CATEGORY', 'BUILDING CLASS CATEGORY'])
+    mapping_df = pd.DataFrame(
+        mapping_list, columns=["ZILLOW CATEGORY", "BUILDING CLASS CATEGORY"]
+    )
     with engine.connect() as connection:
-        mapping_df.to_sql(table_name, con=engine, index=False, if_exists='replace')
+        mapping_df.to_sql(table_name, con=engine, index=False, if_exists="replace")
         print(f"Table '{table_name}' created successfully.")
-
