@@ -369,13 +369,17 @@ def create_table_from_csv(engine, table_name, csv_file, if_exists="fail"):
                       Default is 'fail'.
     """
     with engine.connect() as connection:
-        try:
-            df = pd.read_csv(csv_file)
-            df.to_sql(table_name, con=engine, index=False, if_exists=if_exists)
-            print(f"Table '{table_name}' created from csv '{csv_file}' successfully.")
-        except:
-            print(f"Table '{table_name}' already exists. Not resetting!")
+        df = pd.read_csv(csv_file)
+        df.to_sql(table_name, con=engine, index=False, if_exists=if_exists)
 
+        if if_exists == "fail":
+            print(f"Table '{table_name}' created from csv '{csv_file}' successfully, or already exists.")
+        elif if_exists == "replace":
+            print(f"Table '{table_name}' created or replaced from csv '{csv_file}' successfully.")
+        elif if_exists == "append":
+            print(f"Table '{table_name}' created or appended with data from csv '{csv_file}' successfully.")
+        else:
+            print(f"Unknown 'if_exists' parameter value. Table '{table_name}' may or may not have been affected.")
 
 def add_primary_key(engine, table_name, pk_name):
     """
