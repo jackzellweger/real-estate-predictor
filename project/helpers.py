@@ -355,18 +355,23 @@ def silence_warnings():
     print("SQLAlchemy warnings silenced.")
 
 
-def create_table_from_csv(engine, table_name, csv_file):
+def create_table_from_csv(engine, table_name, csv_file, if_exists="fail"):
     """
     Create a new SQL table from a CSV file, if the table doesn't already exist.
 
     :param engine: SQLAlchemy engine instance
     :param table_name: Name of the table to create
     :param csv_file: Path to the CSV file
+    :param if_exists: Behavior when the table already exists. Options are 'fail', 'replace', or 'append'. 
+                      'fail': If table exists, do nothing. 
+                      'replace': If table exists, drop it, recreate it, and insert data. 
+                      'append': If table exists, insert data. Create if does not exist. 
+                      Default is 'fail'.
     """
     with engine.connect() as connection:
         try:
             df = pd.read_csv(csv_file)
-            df.to_sql(table_name, con=engine, index=False, if_exists="fail")
+            df.to_sql(table_name, con=engine, index=False, if_exists=if_exists)
             print(f"Table '{table_name}' created from csv '{csv_file}' successfully.")
         except:
             print(f"Table '{table_name}' already exists. Not resetting!")
