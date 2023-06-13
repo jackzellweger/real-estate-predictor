@@ -120,16 +120,6 @@ geocoding_data_types_sqlalchemy = {
     "GEOCODING ERR": Boolean,
 }
 
-REQUIRED_PREPROCESSING_COLUMNS = [
-    "BOROUGH",
-    "NEIGHBORHOOD",
-    "BUILDING CLASS CATEGORY",
-    "ADDRESS",
-    "LAND SQUARE FEET",
-    "GROSS SQUARE FEET",
-    "SALE PRICE",
-]
-
 # URL order: [Manhattan, Bronx, Brooklyn, Queens, Staten Island]
 dataURLs = [
     "https://www.nyc.gov/assets/finance/downloads/pdf/rolling_sales/"
@@ -147,14 +137,110 @@ dataURLs = [
 # FUNCTION DECLARATIONS ------------------------
 
 
-# Takes in an array
+def testFunction(toPrint):
+    print(f"Printing:{toPrint}")
+
+
+# Takes in an array of dataframes with the same columns, and returns
+# a larger dataframe of the data, combined.
 def combineHousingDataSets(dataFrames):
+    """
+    Combines multiple housing datasets into a single DataFrame.
+
+    Parameters:
+    dataFrames (list): A list of pandas DataFrames containing housing data.
+
+    Returns:
+    - 'False' if all the required columns are not present in each of
+    the dataFrames individually.
+    - pandas.DataFrame, a combined DataFrame containing data from all input
+    DataFrames if the required columns are present.
+    """
+    # Define required columns
+    REQUIRED_PREPROCESSING_COLUMNS = [
+        "BOROUGH",
+        "NEIGHBORHOOD",
+        "BUILDING CLASS CATEGORY",
+        "ADDRESS",
+        "LAND SQUARE FEET",
+        "GROSS SQUARE FEET",
+        "SALE PRICE",
+    ]
+
+    # Check to see if columns exist
     for dataFrame in dataFrames:
-        if not all(
-            column in REQUIRED_PREPROCESSING_COLUMNS for column in dataFrame.columns
-        ):
-            return False
-    return
+        # Removes extra spaces
+        dataFrame.columns = dataFrame.columns.str.strip()
+
+        # Checks if required columns are present
+        for dataFrame in dataFrames:
+            if not set(REQUIRED_PREPROCESSING_COLUMNS).issubset(dataFrame.columns):
+                # Returns false if they are not
+                print(dataFrame)
+                return False
+
+    # Combine the dataframes and return a new DataFrame
+    return pd.concat(dataFrames, ignore_index=True)
+
+
+# Remove outliars in the data
+def filterOutliers(
+    df: pd.DataFrame, thresholds: dict, quantile_lower: float, quantile_upper: float
+) -> pd.DataFrame:
+    """
+    Removes rows with values "close to zero" and outliers from the given DataFrame based on the provided thresholds
+    and quantiles.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame to be cleaned.
+    thresholds (dict): A dictionary mapping column names to thresholds. Rows in the columns specified where the value
+                       is less than the threshold will be removed.
+    quantile_lower (float): The lower quantile for calculating the interquartile range (IQR). This is used to determine
+                            the lower bound for outliers.
+    quantile_upper (float): The upper quantile for calculating the IQR. This is used to determine the upper bound for
+                            outliers.
+
+    Returns:
+    pd.DataFrame: A new DataFrame with the outliers and values close to zero removed.
+
+    Raises:
+    ValueError: If a column specified in thresholds does not exist in the DataFrame or if it does not contain numeric data.
+    """
+    # Start by copying the data
+    data_clean = df.copy()
+
+    # Validate columns and datatypes
+    for col in thresholds:
+        if col not in data_clean.columns:
+            raise ValueError(f"Column '{col}' not found in DataFrame.")
+        if not pd.api.types.is_numeric_dtype(data_clean[col]):
+            raise ValueError(f"Column '{col}' must contain numeric data.")
+
+    # Remove rows with values "close to zero"
+    for col, threshold in thresholds.items():
+        data_clean = data_clean[data_clean[col] >= threshold]
+
+    # List of columns to remove outliers from
+    cols_to_check = list(thresholds.keys())
+
+    # Remove outliers
+    for col in cols_to_check:
+        # Calculate the IQR of each column
+        Q1 = data_clean[col].quantile(quantile_lower)
+        Q3 = data_clean[col].quantile(quantile_upper)
+        IQR = Q3 - Q1
+
+        # Define the upper and lower bounds for outliers
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+
+        # Remove outliers
+        data_clean = data_clean[
+            (data_clean[col] >= lower_bound) & (data_clean[col] <= upper_bound)
+        ]
+
+    # Return the cleaned data
+    return data_clean
 
 
 def geolocate(row):
@@ -362,24 +448,35 @@ def create_table_from_csv(engine, table_name, csv_file, if_exists="fail"):
     :param engine: SQLAlchemy engine instance
     :param table_name: Name of the table to create
     :param csv_file: Path to the CSV file
-    :param if_exists: Behavior when the table already exists. Options are 'fail', 'replace', or 'append'. 
-                      'fail': If table exists, do nothing. 
-                      'replace': If table exists, drop it, recreate it, and insert data. 
-                      'append': If table exists, insert data. Create if does not exist. 
+    :param if_exists: Behavior when the table already exists. Options are 'fail', 'replace', or 'append'.
+                      'fail': If table exists, do nothing.
+                      'replace': If table exists, drop it, recreate it, and insert data.
+                      'append': If table exists, insert data. Create if does not exist.
                       Default is 'fail'.
     """
     with engine.connect() as connection:
         df = pd.read_csv(csv_file)
-        df.to_sql(table_name, con=engine, index=False, if_exists=if_exists)
-
+        try:
+            df.to_sql(table_name, con=engine, index=False, if_exists=if_exists)
+        except ValueError:
+            print(f"Table {table_name} already exists")
         if if_exists == "fail":
-            print(f"Table '{table_name}' created from csv '{csv_file}' successfully, or already exists.")
+            print(
+                f"Table '{table_name}' created from csv '{csv_file}' successfully, or already exists."
+            )
         elif if_exists == "replace":
-            print(f"Table '{table_name}' created or replaced from csv '{csv_file}' successfully.")
+            print(
+                f"Table '{table_name}' created or replaced from csv '{csv_file}' successfully."
+            )
         elif if_exists == "append":
-            print(f"Table '{table_name}' created or appended with data from csv '{csv_file}' successfully.")
+            print(
+                f"Table '{table_name}' created or appended with data from csv '{csv_file}' successfully."
+            )
         else:
-            print(f"Unknown 'if_exists' parameter value. Table '{table_name}' may or may not have been affected.")
+            print(
+                f"Unknown 'if_exists' parameter value. Table '{table_name}' may or may not have been affected."
+            )
+
 
 def add_primary_key(engine, table_name, pk_name):
     """
