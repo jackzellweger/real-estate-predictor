@@ -99,7 +99,7 @@ def test_missing_column(sample_df):
     with pytest.raises(
         ValueError, match="Column 'MISSING COLUMN' not found in DataFrame."
     ):
-        filterOutliers(sample_df, {"MISSING COLUMN": 100}, 0.25, 0.75)
+        helpers.filterOutliers(sample_df, {"MISSING COLUMN": 100}, 0.25, 0.75)
 
 
 # Test that a ValueError is raised if a column in thresholds does not contain numeric data
@@ -107,13 +107,13 @@ def test_non_numeric_column(sample_df):
     with pytest.raises(
         ValueError, match="Column 'LAND SQUARE FEET' must contain numeric data."
     ):
-        filterOutliers(sample_df, {"LAND SQUARE FEET": 100}, 0.25, 0.75)
+        helpers.filterOutliers(sample_df, {"LAND SQUARE FEET": 100}, 0.25, 0.75)
 
 
 # Test that the function works as expected with valid input
 def test_valid_input(sample_df):
     thresholds = {"SALE PRICE": 150, "GROSS SQUARE FEET": 150}
-    df_clean = filterOutliers(sample_df, thresholds, 0.25, 0.75)
+    df_clean = helpers.filterOutliers(sample_df, thresholds, 0.25, 0.75)
 
     # Check that the cleaned DataFrame has the correct shape (original df has 5 rows, 2 should be removed)
     assert df_clean.shape == (3, 3)
@@ -121,3 +121,42 @@ def test_valid_input(sample_df):
     # Check that the correct rows have been removed (rows with SALE PRICE < 150 or GROSS SQUARE FEET < 150)
     assert df_clean["SALE PRICE"].min() == 200
     assert df_clean["GROSS SQUARE FEET"].min() == 200
+
+
+def test_outlier_removal():
+    df = pd.DataFrame(
+        {
+            "SALE PRICE": [
+                100,
+                200,
+                300,
+                400,
+                500,
+                600,
+                700,
+                800,
+                900,
+                1000,
+            ],  # No outlier here
+            "GROSS SQUARE FEET": [
+                100,
+                200,
+                300,
+                400,
+                500,
+                600,
+                700,
+                800,
+                900,
+                10000,
+            ],  # 10000 is a clear outlier
+        }
+    )
+    thresholds = {"SALE PRICE": 100, "GROSS SQUARE FEET": 100}
+    df_clean = helpers.filterOutliers(df, thresholds, 0.25, 0.75)
+
+    # Check that the cleaned DataFrame has the correct shape (original df has 10 rows, 1 should be removed)
+    assert df_clean.shape == (9, 2)
+
+    # Check that the correct row has been removed (row with 'GROSS SQUARE FEET' == 10000)
+    assert 10000 not in df_clean["GROSS SQUARE FEET"].values
