@@ -35,6 +35,7 @@ from sqlalchemy import (
     MetaData,
     Table,
     select,
+    # OperationalError,
 )
 from sqlalchemy.exc import (
     ProgrammingError,
@@ -243,6 +244,86 @@ def filterOutliers(
     return data_clean
 
 
+# Checks for missing rows
+def check_missing_rows(local_df, sql_table_name, engine):
+    """
+    Checks for missing rows between a local DataFrame and an SQL table.
+
+    Args:
+        local_df (pandas.DataFrame): The local DataFrame to compare.
+        sql_table_name (str): The name of the SQL table to query.
+        engine: The SQLAlchemy engine object for the database connection.
+
+    Returns:
+        pandas.DataFrame or bool: If there are missing rows, returns a DataFrame containing the missing rows.
+        If no missing rows are found, returns False.
+
+    Raises:
+        KeyError: If a KeyError occurs when creating the geo-columns DataFrame from the local data.
+        IOError: If there is an error executing the SQL query.
+        ValueError: If any of the following criteria are met:
+            - The SQL query returns an empty DataFrame.
+            - The local DataFrame is empty.
+            - The 'PRIMARY_KEY' column is missing in either the local DataFrame or the SQL table DataFrame.
+    """
+    try:
+        # Create a DataFrame of geo-columns only from local data
+        geocodes_local = local_df[
+            ["BOROUGH CODE", "BOROUGH", "NEIGHBORHOOD", "ADDRESS"]
+        ].copy()
+
+        # Add primary key column
+        geocodes_local["PRIMARY_KEY"] = (
+            geocodes_local["BOROUGH"] + "_" + geocodes_local["ADDRESS"]
+        )
+
+        # Add additional geo-columns for geocoding
+        (
+            geocodes_local["LATITUDE"],
+            geocodes_local["LONGITUDE"],
+            geocodes_local["GEOCODING ERR"],
+        ) = (None, None, False)
+
+    except KeyError as e:
+        print(f"{e}")
+
+    try:
+        # Load geocodes SQL table into a DataFrame
+        geocodes_table_response = pd.read_sql_query(
+            f"SELECT * FROM {sql_table_name}", engine
+        )
+    except Exception as e:
+        raise IOError(f"SQL query error: {e}")
+
+    # Criteria 1: If the SQL query does not return any data
+    if geocodes_table_response.empty:
+        raise ValueError("SQL Database is empty")
+
+    # Criteria 2: If the local DataFrame is empty
+    if geocodes_local.empty:
+        raise ValueError("Local DataFrame is empty")
+
+    # Criteria 3: If 'PRIMARY_KEY' column is missing in either of the DataFrames
+    if (
+        "PRIMARY_KEY" not in geocodes_local.columns
+        or "PRIMARY_KEY" not in geocodes_table_response.columns
+    ):
+        raise ValueError("Missing 'PRIMARY_KEY' column in one of the DataFrames")
+
+    # Find rows in local data not in our existing geocoding data
+    missing_rows = geocodes_local[
+        ~geocodes_local["PRIMARY_KEY"].isin(geocodes_table_response["PRIMARY_KEY"])
+    ].reset_index(drop=True)
+
+    # Criteria 4: If there are no missing rows
+    if missing_rows.empty:
+        print("No missing rows found")
+        return False
+
+    # If all criteria are met, return the missing rows
+    return missing_rows
+
+
 def geolocate(row):
     """
     Geolocates a row by running a geocoding API request based on the address information provided in the row.
@@ -408,7 +489,7 @@ def connect_to_database(
                 )
                 time.sleep(retry_interval)
             else:
-                raise
+                raise  # OperationalError
     print("Max retries reached. Unable to establish a database connection.")
     return None
 
