@@ -243,7 +243,7 @@ def test_outlier_removal(sample_df_outliers):
 
 
 # --------------------------------------------------------
-# TEST: Find missing geocodes
+# TEST: Find missing geocodes in SQL table
 # --------------------------------------------------------
 
 import config  # for SQL credentials
@@ -267,7 +267,7 @@ from sqlalchemy import create_engine
 from unittest.mock import patch
 
 
-# Dataframe with three rows
+# Geocode dataframe with three rows
 @pytest.fixture
 def dummy_local_geocodes_dataframe():
     return pd.DataFrame(
@@ -310,8 +310,10 @@ def dummy_sql_geocodes_table_response():
     )
 
 
-# Test for missing geo-columns in local DataFrame
-def test_check_missing_rows_missing_columns_local_df(
+# Test for proper response in the case of
+# missing geo-columns in the SQL query rel.
+# to the local DataFrame
+def test_check_missing_rows(
     dummy_local_geocodes_dataframe, dummy_sql_geocodes_table_response
 ):
     # Declare desired result
@@ -340,43 +342,43 @@ def test_check_missing_rows_missing_columns_local_df(
         assert result.equals(desired_df)
 
 
-"""
-def test_check_missing_rows(dummy_sql_geocodes_table_response):
-    local_df = # Add your local data here
-    sql_table_name = # Add your SQL table name here
-    engine = # Add your engine details here
-    assert helpers.check_missing_rows(local_df, sql_table_name, engine) != False
+# Empty SQL response
+def test_check_missing_rows_empty_sql_query(dummy_local_geocodes_dataframe):
+    with patch("pandas.read_sql_query") as mock_read:
+        mock_read.return_value = pd.DataFrame()
+        with pytest.raises(ValueError, match="SQL Database is empty"):
+            helpers.check_missing_rows(
+                dummy_local_geocodes_dataframe, dummy_sql_geocodes_table_response, None
+            )
 
-    # We need to mock the data for the local_df and sql_table_name, and create a connection to the SQL database (engine).
-    # Here we're just going to mock a few of them to illustrate the concept.
-    local_df = pd.DataFrame({'BOROUGH CODE': [], 'BOROUGH': [], 'NEIGHBORHOOD': [], 'ADDRESS': []})
-    sql_table_name = 'mock_table_name'
-    engine = create_engine('sqlite:///:memory:') # Just a mock, replace with your real database connection
 
-def test_check_missing_rows_sql_empty():
-    # Mock an empty SQL database
-    # FIXME: Detect "ValueError: SQL Database is empty"
-    engine.execute(f"CREATE TABLE {sql_table_name} (PRIMARY_KEY text)")
-    assert check_missing_rows(local_df, sql_table_name, engine) == False
+# Missing columns in local DataFrame
+def test_check_missing_rows_missing_columns_local_df(
+    dummy_local_geocodes_dataframe, dummy_sql_geocodes_table_response
+):
+    # Test response if incorrect local columns are not present
+    with patch("pandas.read_sql_query") as mock_read:
+        mock_read.return_value = dummy_sql_geocodes_table_response
+        with pytest.raises(KeyError, match="Columns are missing in local Dataframe"):
+            helpers.check_missing_rows(
+                dummy_local_geocodes_dataframe.drop("BOROUGH", axis=1),
+                None,
+                None,
+            )
 
-def test_check_missing_rows_local_empty():
-    # Mock an empty local DataFrame
-    empty_df = pd.DataFrame()
-    assert check_missing_rows(empty_df, sql_table_name, engine) == False
 
-def test_check_missing_rows_primary_key_missing():
-    # Mock a DataFrame without 'PRIMARY_KEY' column
-    local_df_without_key = local_df.copy()
-    local_df_without_key['PRIMARY_KEY'] = None
-    assert check_missing_rows(local_df_without_key, sql_table_name, engine) == False
+# Missing columns in SQL response
+def test_check_missing_rows_missing_columns_sql_response(
+    dummy_local_geocodes_dataframe, dummy_sql_geocodes_table_response
+):
+    # Test response if incorrect SQL columns are not present
+    with patch("pandas.read_sql_query") as mock_read:
+        mock_read.return_value = dummy_sql_geocodes_table_response.drop(
+            "LATITUDE", axis=1
+        )
+        with pytest.raises(KeyError, match="Columns are missing in SQL response"):
+            helpers.check_missing_rows(dummy_local_geocodes_dataframe, None, None)
 
-def test_check_missing_rows_no_missing_rows():
-    # Mock a DataFrame and SQL table such that there are no missing rows
-    local_df_with_key = local_df.copy()
-    local_df_with_key['PRIMARY_KEY'] = local_df['BOROUGH'] + '_' + local_df['ADDRESS']
-    engine.execute(f"INSERT INTO {sql_table_name} VALUES ('some_value')")
-    assert check_missing_rows(local_df_with_key, sql_table_name, engine) == False
-"""
 
 # --------------------------------------------------------
 # TEST: xx

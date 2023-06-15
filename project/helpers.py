@@ -247,24 +247,24 @@ def filterOutliers(
 # Checks for missing rows
 def check_missing_rows(local_df, sql_table_name, engine):
     """
-    Checks for missing rows between a local DataFrame and an SQL table.
+    Compares a local DataFrame with an SQL table to identify and return any missing rows.
 
     Args:
-        local_df (pandas.DataFrame): The local DataFrame to compare.
-        sql_table_name (str): The name of the SQL table to query.
-        engine: The SQLAlchemy engine object for the database connection.
+    local_df (pandas.DataFrame): The DataFrame to be compared with the SQL table.
+    sql_table_name (str): The name of the SQL table to be compared with the local DataFrame.
+    engine: The SQLAlchemy engine instance facilitating the database connection.
 
     Returns:
-        pandas.DataFrame or bool: If there are missing rows, returns a DataFrame containing the missing rows.
-        If no missing rows are found, returns False.
+    pandas.DataFrame or bool: Returns a DataFrame containing missing rows if any are found.
+    If no missing rows are detected, returns False.
 
     Raises:
-        KeyError: If a KeyError occurs when creating the geo-columns DataFrame from the local data.
-        IOError: If there is an error executing the SQL query.
-        ValueError: If any of the following criteria are met:
-            - The SQL query returns an empty DataFrame.
-            - The local DataFrame is empty.
-            - The 'PRIMARY_KEY' column is missing in either the local DataFrame or the SQL table DataFrame.
+    KeyError: If mandatory columns are missing in either the local DataFrame or the SQL table DataFrame.
+    IOError: If an error arises while executing the SQL query.
+    ValueError: If one of the following conditions are encountered:
+    - The SQL query yields an empty DataFrame.
+    - The local DataFrame is empty.
+    - The 'PRIMARY_KEY' column is absent in either the local DataFrame or the SQL table DataFrame.
     """
     try:
         # Create a DataFrame of geo-columns only from local data
@@ -284,8 +284,9 @@ def check_missing_rows(local_df, sql_table_name, engine):
             geocodes_local["GEOCODING ERR"],
         ) = (None, None, False)
 
-    except KeyError as e:
-        print(f"{e}")
+    except KeyError:
+        # Error 1: If mandatory columns are missing in the local DataFrame
+        raise KeyError(f"Columns are missing in local Dataframe")
 
     try:
         # Load geocodes SQL table into a DataFrame
@@ -293,17 +294,31 @@ def check_missing_rows(local_df, sql_table_name, engine):
             f"SELECT * FROM {sql_table_name}", engine
         )
     except Exception as e:
+        # Error 2: If an error occurs while executing the SQL query
         raise IOError(f"SQL query error: {e}")
 
-    # Criteria 1: If the SQL query does not return any data
     if geocodes_table_response.empty:
         raise ValueError("SQL Database is empty")
+    expected_columns = [
+        "BOROUGH CODE",
+        "BOROUGH",
+        "NEIGHBORHOOD",
+        "ADDRESS",
+        "LATITUDE",
+        "LONGITUDE",
+        "GEOCODING ERR",
+        "PRIMARY_KEY",
+    ]
+    missing_columns = set(expected_columns) - set(geocodes_table_response.columns)
+    if missing_columns:
+        # Error 3: If the SQL query returns data with the incorrect columns
+        raise KeyError("Columns are missing in SQL response")
 
-    # Criteria 2: If the local DataFrame is empty
     if geocodes_local.empty:
+        # Error 4: If the local DataFrame is empty
         raise ValueError("Local DataFrame is empty")
 
-    # Criteria 3: If 'PRIMARY_KEY' column is missing in either of the DataFrames
+    # Error 5: If 'PRIMARY_KEY' column is missing in either of the DataFrames
     if (
         "PRIMARY_KEY" not in geocodes_local.columns
         or "PRIMARY_KEY" not in geocodes_table_response.columns
@@ -315,7 +330,7 @@ def check_missing_rows(local_df, sql_table_name, engine):
         ~geocodes_local["PRIMARY_KEY"].isin(geocodes_table_response["PRIMARY_KEY"])
     ].reset_index(drop=True)
 
-    # Criteria 4: If there are no missing rows
+    # If there are no missing rows, return False
     if missing_rows.empty:
         print("No missing rows found")
         return False
