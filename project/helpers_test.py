@@ -311,7 +311,7 @@ def dummy_sql_geocodes_table_response():
 
 
 # Test for proper response in the case of
-# missing geo-columns in the SQL query rel.
+# missing geo-columns in the SQL query relative
 # to the local DataFrame
 def test_check_missing_rows(
     dummy_local_geocodes_dataframe, dummy_sql_geocodes_table_response
@@ -352,6 +352,19 @@ def test_check_missing_rows_empty_sql_query(dummy_local_geocodes_dataframe):
             )
 
 
+# Missing columns in SQL response
+def test_check_missing_rows_missing_columns_sql_response(
+    dummy_local_geocodes_dataframe, dummy_sql_geocodes_table_response
+):
+    # Test response if incorrect SQL columns are not present
+    with patch("pandas.read_sql_query") as mock_read:
+        mock_read.return_value = dummy_sql_geocodes_table_response.drop(
+            "LATITUDE", axis=1
+        )
+        with pytest.raises(KeyError, match="Columns are missing in SQL response"):
+            helpers.check_missing_rows(dummy_local_geocodes_dataframe, None, None)
+
+
 # Missing columns in local DataFrame
 def test_check_missing_rows_missing_columns_local_df(
     dummy_local_geocodes_dataframe, dummy_sql_geocodes_table_response
@@ -367,19 +380,103 @@ def test_check_missing_rows_missing_columns_local_df(
             )
 
 
-# Missing columns in SQL response
-def test_check_missing_rows_missing_columns_sql_response(
-    dummy_local_geocodes_dataframe, dummy_sql_geocodes_table_response
-):
-    # Test response if incorrect SQL columns are not present
-    with patch("pandas.read_sql_query") as mock_read:
-        mock_read.return_value = dummy_sql_geocodes_table_response.drop(
-            "LATITUDE", axis=1
+# --------------------------------------------------------
+# TEST: Geocode row of address data
+# --------------------------------------------------------
+
+# Imports
+from pandas._testing import assert_series_equal
+
+
+# Fixture to mock a row
+# (this address does not exist)
+@pytest.fixture
+def row():
+    return pd.Series(
+        {
+            "ADDRESS": "123 Main St",
+            "BOROUGH": "Manhattan",
+            "GEOCODING ERR": False,
+            "LATITUDE": None,
+            "LONGITUDE": None,
+        }
+    )
+
+
+# Test a sucessful geolocation
+def test_geolocation_success(row):
+    # Mock successful geocoding response
+    with patch("requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {
+            "results": [
+                {
+                    "geometry": {"location": {"lat": 40.7128, "lng": -74.0060}},
+                    "partial_match": False,  # Partial match is 'False' because we're mocking a full match
+                }
+            ]
+        }
+
+        result = helpers.geolocate(row)
+
+        expected = pd.Series(
+            {
+                "ADDRESS": "123 Main St",
+                "BOROUGH": "Manhattan",
+                "GEOCODING ERR": False,
+                "LATITUDE": 40.7128,
+                "LONGITUDE": -74.0060,
+            }
         )
-        with pytest.raises(KeyError, match="Columns are missing in SQL response"):
-            helpers.check_missing_rows(dummy_local_geocodes_dataframe, None, None)
+    # Asserts that result DataFrame equals expected DataFrame
+    assert_series_equal(result, expected)
 
 
-# --------------------------------------------------------
-# TEST: xx
-# --------------------------------------------------------
+# Test geolocation result marking total API failure
+# by setting 'GEOCODING ERR' as 'True'
+def test_geolocation_failure_no_results(row):
+    # Mock failure geocoding response with no results
+    with patch("requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {"results": []}
+
+        result = helpers.geolocate(row)
+
+        expected = pd.Series(
+            {
+                "ADDRESS": "123 Main St",
+                "BOROUGH": "Manhattan",
+                "GEOCODING ERR": True,
+                "LATITUDE": None,
+                "LONGITUDE": None,
+            }
+        )
+    # Asserts that result DataFrame equals expected DataFrame
+    assert_series_equal(result, expected)
+
+
+# Test if 'GEOCODING ERR' is marked as 'True' if there is only
+# a partial match
+def test_geolocation_failure_partial_match(row):
+    # Mock failure geocoding response with partial match
+    with patch("requests.get") as mock_get:
+        mock_get.return_value.json.return_value = {
+            "results": [
+                {
+                    "geometry": {"location": {"lat": 40.7128, "lng": -74.0060}},
+                    "partial_match": True,
+                }
+            ]
+        }
+
+        result = helpers.geolocate(row)
+
+        expected = pd.Series(
+            {
+                "ADDRESS": "123 Main St",
+                "BOROUGH": "Manhattan",
+                "GEOCODING ERR": True,
+                "LATITUDE": None,
+                "LONGITUDE": None,
+            }
+        )
+    # Asserts that result DataFrame equals expected DataFrame
+    assert_series_equal(result, expected)

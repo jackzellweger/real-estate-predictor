@@ -350,12 +350,11 @@ def geolocate(row):
         pandas.Series: The updated row with latitude and longitude information if geocoding was successful,
         or with geocoding error flag and null latitude and longitude values if geocoding failed.
     """
-    if not row["GEOCODING ERR"]:  # If GEOCODING ERR is False, run the geocoding API
+    if not row["GEOCODING ERR"]:  # If 'GEOCODING ERR' is False, run the geocoding API
         address = (
             ", ".join(
                 [
                     row["ADDRESS"],
-                    # row['NEIGHBORHOOD'],
                     row["BOROUGH"],
                 ]
             )
@@ -364,7 +363,8 @@ def geolocate(row):
         response = requests.get(
             f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={config.GOOGLE_API_KEY}"
         )
-        res = response.json()
+        res = response.json()  # Assign json response to 'res'
+
         if res["results"]:
             location = res["results"][0]
             if location.get("partial_match"):  # Check for partial match
@@ -375,9 +375,10 @@ def geolocate(row):
                 row["LATITUDE"] = location["geometry"]["location"]["lat"]
                 row["LONGITUDE"] = location["geometry"]["location"]["lng"]
         else:
-            row[
-                "GEOCODING ERR"
-            ] = True  # Update GEOCODING ERR to True if geolocation failed
+            # Update GEOCODING ERR to True if geolocation failed
+            row["GEOCODING ERR"] = True
+
+            # Assign 'None' to lat and long fields
             row["LATITUDE"] = None
             row["LONGITUDE"] = None
     return row
