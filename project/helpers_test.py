@@ -453,8 +453,8 @@ def test_geolocation_failure_no_results(row):
     assert_series_equal(result, expected)
 
 
-# Test if 'GEOCODING ERR' is marked as 'True' if there is only
-# a partial match
+# Test if 'GEOCODING ERR' is marked as 'True'
+# if there is only a partial match
 def test_geolocation_failure_partial_match(row):
     # Mock failure geocoding response with partial match
     with patch("requests.get") as mock_get:
@@ -480,3 +480,101 @@ def test_geolocation_failure_partial_match(row):
         )
     # Asserts that result DataFrame equals expected DataFrame
     assert_series_equal(result, expected)
+
+
+# --------------------------------------------------------
+# TEST: Is the local DataFrame a subset of the SQL table?
+# --------------------------------------------------------
+from unittest.mock import MagicMock, patch, create_autospec
+from sqlalchemy.engine import Engine
+
+
+@pytest.fixture
+def sql_response_df():
+    return pd.DataFrame(
+        {
+            "ADDRESS": ["123 Main St", "456 Main St", "789 Main St"],
+            "BOROUGH": ["Manhattan", "Brooklyn", "Queens"],
+            "GEOCODING ERR": [True, True, False],
+            "LATITUDE": [None, None, 40.7282],
+            "LONGITUDE": [None, None, -73.7949],
+            "PRIMARY_KEY": [
+                "Manhattan_123 Main St",
+                "Brooklyn_456 Main St",
+                "Queens_789 Main St",
+            ],
+        }
+    )
+
+
+def test_is_local_sql_subset_fail(sql_response_df):
+    mock_engine = create_autospec(Engine)
+
+    # When connect is called, it should return a context manager
+    # that produces a MagicMock when used in a with block.
+    mock_connection = MagicMock()
+    mock_engine.connect.return_value.__enter__.return_value = mock_connection
+
+    # Test case 1: Local DataFrame is not a subset
+    # because we remove a row in the SQL table that
+    # is in the local DataFrame
+    with patch("pandas.read_sql_query") as mock_read:
+        mock_read.return_value = sql_response_df.drop(
+            sql_response_df.index[1]
+        )  # Drop the second row to set up a False result
+
+        local_df = sql_response_df  # Setting local to response
+
+        result = helpers.is_local_sql_subset(
+            mock_engine, local_df, "geocodes_table_name"
+        )
+
+    # Assertion criteria
+    assert result == False
+
+    # Test case 2: Defining a new row to the local
+    # DataFrame so that we are no longer in subset,
+    # and we fail the test
+
+    new_row = {
+        "ADDRESS": "321 Park Ave",
+        "BOROUGH": "Queens",
+        "GEOCODING ERR": False,
+        "LATITUDE": 40.7389,
+        "LONGITUDE": -73.8816,
+        "PRIMARY_KEY": "Queens_321 Park Ave",
+    }
+    new_row = pd.Series(new_row)
+
+    with patch("pandas.read_sql_query") as mock_read:
+        mock_read.return_value = sql_response_df
+
+        # Adding the new row to the local DataFrame
+        local_df_1 = pd.concat([sql_response_df, new_row], ignore_index=True)
+
+        result_1 = helpers.is_local_sql_subset(
+            mock_engine, local_df_1, "geocodes_table_name"
+        )
+    # This should return False because
+    assert result_1 == False
+
+
+def test_is_local_sql_subset_failure_success(sql_response_df):
+    mock_engine = create_autospec(Engine)
+
+    # When connect is called, it should return a context manager
+    # that produces a MagicMock when used in a with block.
+    mock_connection = MagicMock()
+    mock_engine.connect.return_value.__enter__.return_value = mock_connection
+
+    with patch("pandas.read_sql_query") as mock_read:
+        mock_read.return_value = sql_response_df
+
+        result = helpers.is_local_sql_subset(
+            mock_engine,
+            sql_response_df.drop(sql_response_df.index[1]),
+            "geocodes_table_name",
+        )  # Inserting None because we mocked the reads
+
+    # Assertion criteria
+    assert result == True

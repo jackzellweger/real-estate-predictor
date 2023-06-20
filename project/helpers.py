@@ -384,6 +384,22 @@ def geolocate(row):
     return row
 
 
+def is_local_sql_subset(engine, geocodes_local, geocodes_sql_table_name):
+    with engine.connect() as connection:
+        geocodes_table_response = pd.read_sql_query(
+            f"SELECT * FROM {geocodes_sql_table_name}", engine
+        )
+
+    missing_rows = geocodes_local[
+        ~geocodes_local["PRIMARY_KEY"].isin(geocodes_table_response["PRIMARY_KEY"])
+    ]
+
+    if missing_rows.empty:
+        return True
+    else:
+        return False
+
+
 def print_sql_table(engine, table_name):
     """
     This function retrieves and prints all the rows from a SQL table.
