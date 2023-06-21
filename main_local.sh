@@ -32,4 +32,4 @@ terraform init
 terraform plan
 
 # Apply the Terraform...
-terraform apply # FIXME: We might have trouble with this because we don't know the name of the AWS instance
+terraform apply

@@ -8,9 +8,15 @@ import numpy as np
 app = Flask(__name__)
 app.debug = True
 
-# Load the model and preprocessor
-model = joblib.load("./model/model.joblib")
-encoder = joblib.load("./model/preprocessor.joblib")
+errorString = None
+
+try:
+    # Load the model and preprocessor
+    model = joblib.load("./model/model.joblib")
+    encoder = joblib.load("./model/preprocessor.joblib")
+except:
+    errorString = "Model or encoder files not found."
+
 
 # Define column structure & DataFrame for prediction...
 df_cols = pd.DataFrame(
@@ -28,7 +34,10 @@ df_cols = pd.DataFrame(
 
 @app.route("/")
 def hello_world():
-    return "Hello, World!"
+    if errorString is not None:
+        return errorString
+
+    return "Import copacetic!"
 
 
 @app.route("/predict", methods=["GET", "POST"])

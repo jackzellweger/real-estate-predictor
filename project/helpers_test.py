@@ -507,6 +507,11 @@ def sql_response_df():
     )
 
 
+# Test to ensure False return value if we removea row
+# from the SQL table that is in the local DataFrame
+# Also tests to ensure False return value if we add a new
+# row to the local DataFrame so it’s no longer a subset
+# of the SQL table.
 def test_is_local_sql_subset_fail(sql_response_df):
     mock_engine = create_autospec(Engine)
 
@@ -559,7 +564,7 @@ def test_is_local_sql_subset_fail(sql_response_df):
     assert result_1 == False
 
 
-def test_is_local_sql_subset_failure_success(sql_response_df):
+def test_is_local_sql_subset_success(sql_response_df):
     mock_engine = create_autospec(Engine)
 
     # When connect is called, it should return a context manager
@@ -567,12 +572,15 @@ def test_is_local_sql_subset_failure_success(sql_response_df):
     mock_connection = MagicMock()
     mock_engine.connect.return_value.__enter__.return_value = mock_connection
 
+    # Mocks a local DataFrame that is a subset of the SQL table return table
+    local_df = sql_response_df.drop(sql_response_df.index[1])
+
     with patch("pandas.read_sql_query") as mock_read:
         mock_read.return_value = sql_response_df
 
         result = helpers.is_local_sql_subset(
             mock_engine,
-            sql_response_df.drop(sql_response_df.index[1]),
+            local_df,
             "geocodes_table_name",
         )  # Inserting None because we mocked the reads
 
