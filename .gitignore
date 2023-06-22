@@ -21,3 +21,6 @@ project/notebook.py
 #project/model
 #project/model.joblib
 #project/preprocessor.joblib
+
+# Virtual environments
+project/new_env
