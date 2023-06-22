@@ -386,6 +386,11 @@ def test_check_missing_rows_missing_columns_local_df(
 
 # Imports
 from pandas._testing import assert_series_equal
+import importlib
+import config
+
+# Reload config for good measure
+importlib.reload(config)
 
 
 # Fixture to mock a row
@@ -403,8 +408,21 @@ def row():
     )
 
 
+@pytest.fixture
+def expected_row():
+    return pd.Series(
+        {
+            "ADDRESS": "2744 BOUCK AVE",
+            "BOROUGH": "BRONX",
+            "GEOCODING ERR": False,
+            "LATITUDE": 40.866652,
+            "LONGITUDE": -73.849797,
+        }
+    )
+
+
 # Test a sucessful geolocation
-def test_geolocation_success(row):
+def test_geolocate_success(row):
     # Mock successful geocoding response
     with patch("requests.get") as mock_get:
         mock_get.return_value.json.return_value = {
@@ -416,7 +434,7 @@ def test_geolocation_success(row):
             ]
         }
 
-        result = helpers.geolocate(row)
+        result = helpers.geolocate(row, config.GOOGLE_API_KEY)
 
         expected = pd.Series(
             {
@@ -433,12 +451,12 @@ def test_geolocation_success(row):
 
 # Test geolocation result marking total API failure
 # by setting 'GEOCODING ERR' as 'True'
-def test_geolocation_failure_no_results(row):
+def test_geolocate_failure_no_results(row):
     # Mock failure geocoding response with no results
     with patch("requests.get") as mock_get:
         mock_get.return_value.json.return_value = {"results": []}
 
-        result = helpers.geolocate(row)
+        result = helpers.geolocate(row, config.GOOGLE_API_KEY)
 
         expected = pd.Series(
             {
@@ -455,7 +473,7 @@ def test_geolocation_failure_no_results(row):
 
 # Test if 'GEOCODING ERR' is marked as 'True'
 # if there is only a partial match
-def test_geolocation_failure_partial_match(row):
+def test_geolocate_failure_partial_match(row):
     # Mock failure geocoding response with partial match
     with patch("requests.get") as mock_get:
         mock_get.return_value.json.return_value = {
@@ -467,7 +485,7 @@ def test_geolocation_failure_partial_match(row):
             ]
         }
 
-        result = helpers.geolocate(row)
+        result = helpers.geolocate(row, config.GOOGLE_API_KEY)
 
         expected = pd.Series(
             {
@@ -480,6 +498,19 @@ def test_geolocation_failure_partial_match(row):
         )
     # Asserts that result DataFrame equals expected DataFrame
     assert_series_equal(result, expected)
+
+
+def test_geolocate_return_expected_result(expected_row):
+    # Creating a row we'll pass to the function
+    row_to_pass = expected_row.copy()
+    row_to_pass["LATITUDE"] = None
+    row_to_pass["LONGITUDE"] = None
+
+    # Pass the row
+    result = helpers.geolocate(row_to_pass, config.GOOGLE_API_KEY)
+
+    # Assert the result is what we expect
+    assert_series_equal(result, expected_row)
 
 
 # --------------------------------------------------------

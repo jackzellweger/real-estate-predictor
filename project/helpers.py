@@ -339,7 +339,7 @@ def check_missing_rows(local_df, sql_table_name, engine):
     return missing_rows
 
 
-def geolocate(row):
+def geolocate(row, api_key):
     """
     Geolocates a row by running a geocoding API request based on the address information provided in the row.
 
@@ -361,9 +361,14 @@ def geolocate(row):
             + ", New York City"
         )
         response = requests.get(
-            f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={config.GOOGLE_API_KEY}"
+            f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={api_key}"
         )
         res = response.json()  # Assign json response to 'res'
+
+        # Check for API key failure, this is what it looks like if it's expired...
+        # {'error_message': 'The provided API key is expired. ', 'results': [], 'status': 'REQUEST_DENIED'}
+        if str(res.get("error_message", {})).find("key") is not -1:
+            raise ValueError("Invalid API Key for geocoding!")
 
         if res["results"]:
             location = res["results"][0]
@@ -390,11 +395,11 @@ def is_local_sql_subset(engine, geocodes_local, geocodes_sql_table_name):
             f"SELECT * FROM {geocodes_sql_table_name}", engine
         )
 
-    missing_rows = geocodes_local[
+    rows = geocodes_local[
         ~geocodes_local["PRIMARY_KEY"].isin(geocodes_table_response["PRIMARY_KEY"])
     ]
 
-    if missing_rows.empty:
+    if rows.empty:
         return True
     else:
         return False
