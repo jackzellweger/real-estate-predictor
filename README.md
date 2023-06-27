@@ -1443,8 +1443,9 @@ This seems to line up with my idea of how houses are priced in Brooklyn! A coupl
 
 However, it looks like the predictor is making some arbitrary “choices” about where it’s drawing steep drop-offs in price, and they’re along a very well-defined x-y grid. This seems suspicious. Here’s another fun visualization we can produce to really show how the predictor is estimating house prices change over neighborhoods…
 
-<img src="./images/topography-brooklyn-random-forest.png" width="400" style="display: block; margin: auto;">
-
+<div align="center">
+  <img src="./images/heatmap-brooklyn-random-forest.png" width="400">
+</div>
 
 # To Do
 
