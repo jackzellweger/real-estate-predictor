@@ -24,33 +24,47 @@ Here’s a walkthrough of how to get an instance of the API up and running for y
 
 **Navigate to AWS’s `Identity and Access Management` console (search for `IAM`)…**
 
-<img src="./images/iam.png" width="400">
+<div align="center">
+    <img src="./images/iam.png" width="400">
+</div>
 
 **Hit the `Users` button in the sidebar and click the `Add users` button, and follow the user flow to user creation…**
 
-<img src="./images/addusers.png" width="400">
+<div align="center">
+    <img src="./images/addusers.png" width="400">
+</div>
 
 **Create a new user group with `AdministratorAccess` privileges and add your user to that group…**
 
-<img src="./images/adminaccess.png" width="400">
+<div align="center">
+    <img src="./images/adminaccess.png" width="400">
+</div>
 
 **Your console should look something like this…**
 
-<img src="./images/reviewusers.png" width="400">
+<div align="center">
+    <img src="./images/reviewusers.png" width="400">
+</div>
 
 Click on your new user in the `Users` section, scroll down to the `Security credentials` tab, and hit `Create access key`.
 
 Then, select `Third-party service`.
 
-<img src="./images/thirdparty.png" width="400">
+<div align="center">
+    <img src="./images/thirdparty.png" width="400">
+</div>
 
 Type in a short description…
 
-<img src="./images/shortdescription.png" width="400">
+<div align="center">
+    <img src="./images/shortdescription.png" width="400">
+</div>
 
 And then copy / paste your access keys to a secure location. You’ll need them!
 
-<img src="./images/accesskeys.png" width="400">
+<div align="center">
+    <img src="./images/accesskeys.png" width="400">
+</div>
 
 ### Install Terraform and provision a server automatically (with Terraform)
 
@@ -483,12 +497,15 @@ def test_combineHousingDataSets_missing_columns():
 Sometimes, someone will come along and drop 400 million dollars on an apartment building. I didn’t want to include these kinds of sales in my prediction dataset. I thought it would just muck things up and degrade the quality of the prediction. After all, we are interested in the kinds of homes that single families or small-time landlords purchase off sites like Zillow and Redfin.
 
 Let’s take a look at a map displaying the sales data for New York City, with the values below the 0.25 quantile and above the 0.75 quantile removed.
-
-<img src="./images/point-plot-1.png" width="400">
+<div align="center">
+    <img src="./images/point-plot-1.png" width="400">
+</div>
 
 It looks like there are hardly any listings in Manhattan. I’d guess it’s because most of Manhattan’s sales were within the top 25% price range. Let’s change the quantiles to 0.15 and 0.99 to capture some of those rich folks out in Manhattan!
 
-<img src="./images/point-plot-2.png" width="400">
+<div align="center">
+    <img src="./images/point-plot-2.png" width="400">
+</div>
 
 This is about 20K sales, and looks dense enough to provide sufficient coverage pretty much anywhere in the city.
 
@@ -1436,15 +1453,16 @@ query = {
             'LONGITUDE': <lon>
         }
 ```
-
-<img src="./images/heatmap-brooklyn-random-forest.png" width="400">
+<div align="center">
+    <img src="./images/heatmap-brooklyn-random-forest.png" width="400">
+</div>
 
 This seems to line up with my idea of how houses are priced in Brooklyn! A couple quick observations show that Park Slope and Red Hook are some of the highest priced parts of Brooklyn.
 
 However, it looks like the predictor is making some arbitrary “choices” about where it’s drawing steep drop-offs in price, and they’re along a very well-defined x-y grid. This seems suspicious. Here’s another fun visualization we can produce to really show how the predictor is estimating house prices change over neighborhoods…
 
 <div align="center">
-  <img src="./images/heatmap-brooklyn-random-forest.png" width="400">
+  <img src="./images/topography-brooklyn-random-forest.png" width="400">
 </div>
 
 # To Do
