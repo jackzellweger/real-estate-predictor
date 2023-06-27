@@ -124,7 +124,7 @@ mkdir ~/Desktop/myproject && cd ~/Desktop/myproject
 
 Then run the following command in your terminal to create a `main.tf` file:
 
-```json
+```terraform
 cat > main.tf <<EOF
 provider "aws" {
   region = "us-east-2"
