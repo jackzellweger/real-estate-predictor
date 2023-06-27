@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 import sklearn
 import numpy as np
+import json
 
 app = Flask(__name__)
 app.debug = True
@@ -61,17 +62,21 @@ def predict():
             encoded_features = encoder.transform(dummy_api_df)
 
             # Delete irrelevant features & extract prediction
-            encoded_features = np.delete(encoded_features, 4, axis=1)
-            prediction = model.predict(encoded_features)
+            encoded_features = np.delete(encoded_features, 4, axis=1) # Deletes target var (price)
+            prediction = model.predict(encoded_features) # Makes prediction
             prediction_price = encoder.transformers_[0][1].inverse_transform(
                 [0, 0, 0, 0, prediction[0]]
-            )[4]
+            )[4] # Extracts price prediction only
 
             # Return the prediction
             return jsonify({"prediction_price": int(prediction_price)})
 
         except Exception as err:
-            return f"{err.__class__.__name__}: {err}"
+            error_message = {
+                "error_message": str(err),
+                "error_type": err.__class__.__name__,
+            }
+            return json.dumps(error_message)
 
     else:
         return "This is the prediction page!"

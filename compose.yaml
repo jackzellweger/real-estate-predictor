@@ -26,7 +26,7 @@ services:
       - db
 
   flask-server:
-    user: root # Dangerous?
+    user: root
     build:
       context: .
       dockerfile: flask-dockerfile
