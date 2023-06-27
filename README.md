@@ -6,6 +6,33 @@ I am not just hosting an instance of the API myself; I made it easy for you to l
 
 I made everything so it’s as easy as possible for the end user to get started.
 
+# How it works
+
+When you send the following request to the API...
+
+```python
+data = {
+    'BOROUGH CODE': 3,
+    'GROUPED CATEGORY': 'Apartment',
+    'GROSS SQUARE FEET': 2000,
+    'LAND SQUARE FEET': 1000,
+    'LATITUDE': 40.6727,
+    'LONGITUDE': -73.9650
+}
+
+response = requests.post('http://ip.address.here/predict', json=data)
+```
+
+You'll get the following response...
+
+```
+print(response.text)
+
+{    
+  "prediction_price": 2540973
+}
+```
+
 # Motivation
 
 This is a product of my ongoing fascination with real estate tools, specifically real estate tools with an element of GIS.
