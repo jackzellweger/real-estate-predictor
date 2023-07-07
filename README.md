@@ -1148,7 +1148,7 @@ with engine.connect() as engine:
 
 ### Testing the `is_local_sql_subset()` function
 
-`**@fixture` declarations**
+**`@fixture` declarations**
 
 ```python
 @pytest.fixture
