@@ -1112,20 +1112,20 @@ For more detailed technical information on how the program operated, you can ref
 
 ```mermaid
 graph TD
-A[Download NYC Housing Data] --> B[Create DataFrame `combined`]
-B --> C[Filter DataFrame `combined`]
-C --> D[Add lat/long columns to `combined`]
-D --> E[Check if table `geocodes` exists in SQL database]
-E --> |Table exists| F[Pull all `geocodes` into DataFrame]
-E --> |Table doesn't exist| G[Create table `geocodes`]
+A[Download NYC Housing Data] --> B[Create DataFrame 'combined']
+B --> C[Filter DataFrame 'combined']
+C --> D[Add lat/long columns to 'combined']
+D --> E[Check if table 'geocodes' exists in SQL database]
+E --> |Table exists| F[Pull all 'geocodes' into DataFrame]
+E --> |Table doesn't exist| G[Create table 'geocodes']
 F --> H[xx]
-G --> H[Compare `combined` and `geocodes` for rows missing from `geocodes`]
+G --> H[Compare 'combined' and 'geocodes' for rows missing from 'geocodes']
 H --> I[Geocode missing addresses]
-I --> J[Append new addresses back to `combined` DataFrame]
-I --> M[Append new addresses back to `geocodes` SQL table]
-J --> K[Generate PK on address for `combined` DataFrame]
-K --> L[Merge the final `combined` and `geocodes` DataFrames on address PK]
-L --> N[Turn the final geocoded DataFrame into a `sales` SQL table]
+I --> J[Append new addresses back to 'combined' DataFrame]
+I --> M[Append new addresses back to 'geocodes' SQL table]
+J --> K[Generate PK on address for 'combined' DataFrame]
+K --> L[Merge the final 'combined' and 'geocodes' DataFrames on address PK]
+L --> N[Turn the final geocoded DataFrame into a 'sales' SQL table]
 ```
 
 ### The code
